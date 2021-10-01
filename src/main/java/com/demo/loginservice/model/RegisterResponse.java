@@ -1,4 +1,4 @@
-package com.demo.loginservice;
+package com.demo.loginservice.model;
 
 import java.util.UUID;
 

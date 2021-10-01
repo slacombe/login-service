@@ -1,4 +1,4 @@
-package com.demo.loginservice;
+package com.demo.loginservice.model;
 
 public class LoginResponse {
 	private final String email;
