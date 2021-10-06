@@ -1,30 +1,40 @@
 package com.demo.loginservice.model;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import javax.persistence.*;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Table;
-import java.io.Serializable;
+@Entity
+@Table(name = "user", schema = "public")
+public class User {
 
-@Table(name = "USER")
-@DiscriminatorValue("USER")
-@AllArgsConstructor
-@NoArgsConstructor
-public class User implements Serializable {
-
-	@Column(name="EMAIL", nullable = false, unique = true)
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	@Column(name = "id", updatable = false, nullable = false)
+	private Long id;
 	private String email;
-
-	@Column(name="PASSWORD", nullable = false)
 	private String password;
+
+
+	public User() {
+
+	}
+
+	public Long getId() {
+		return id;
+	}
 
 	public String getEmail() {
 		return email;
 	}
 
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
 	public String getPassword() {
 		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 }
