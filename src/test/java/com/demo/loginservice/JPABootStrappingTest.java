@@ -1,13 +1,14 @@
-package com.demo.loginservice.data;
+package com.demo.loginservice;
 
 import com.demo.loginservice.model.User;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.Persistence;
-import java.util.logging.Logger;
 
 public class JPABootStrappingTest {
-	Logger log = Logger.getLogger(this.getClass().getName());
+	Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
 	@Test
 	public void bootstrapping() {
@@ -17,7 +18,8 @@ public class JPABootStrappingTest {
 		var em = emf.createEntityManager();
 		em.getTransaction().begin();
 
-		em.find(User.class, 1L);
+		var user = em.find(User.class, 1L);
+		log.info(String.format("User - email = '%s'", user.getEmail()));
 
 		em.getTransaction().commit();
 		em.close();

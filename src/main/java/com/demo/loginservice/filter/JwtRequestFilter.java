@@ -3,6 +3,9 @@ package com.demo.loginservice.filter;
 import com.demo.loginservice.services.MyUserDetailsService;
 import com.demo.loginservice.util.JwtUtil;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +21,7 @@ import java.io.IOException;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
+	Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 	@Autowired
 	private MyUserDetailsService userDetailsService;
 
@@ -37,7 +41,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		}
 
 		if (jwt != null) {
-			username = jwtUtil.extractClaim(jwt, Claims::getSubject);
+			try {
+				username = jwtUtil.extractClaim(jwt, Claims::getSubject);
+			} catch (ExpiredJwtException e) {
+				logger.warn("Received expired token, token = {}", jwt);
+			}
 		}
 
 		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

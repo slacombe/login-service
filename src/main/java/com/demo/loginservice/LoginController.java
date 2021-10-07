@@ -1,10 +1,12 @@
 package com.demo.loginservice;
 
+import com.demo.loginservice.exceptions.EmailExistsException;
 import com.demo.loginservice.model.AuthenticationRequest;
 import com.demo.loginservice.model.AuthenticationResponse;
 import com.demo.loginservice.model.RegisterResponse;
 import com.demo.loginservice.model.User;
 import com.demo.loginservice.services.MyUserDetailsService;
+import com.demo.loginservice.store.UserStore;
 import com.demo.loginservice.util.JwtUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,11 +19,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
-@RestController
+@RestController("/login")
 public class LoginController {
-	private ObjectMapper mapper = new ObjectMapper();
+	private final ObjectMapper mapper = new ObjectMapper();
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
@@ -30,14 +30,17 @@ public class LoginController {
 	private MyUserDetailsService userDetailsService;
 
 	@Autowired
-	public JwtUtil jwtTokenUtil;
+	private JwtUtil jwtTokenUtil;
+
+	@Autowired
+	private UserStore userStore;
 
 	@RequestMapping("/hello")
 	public String hello() {
 		return "Hello, World!";
 	}
 
-	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
+	@RequestMapping(value = "/login/authenticate", method = RequestMethod.POST)
 	public ResponseEntity<?> createAuthenticateToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
 		try {
 			authenticationManager.authenticate(
@@ -55,15 +58,28 @@ public class LoginController {
 		}
 	}
 
-	@PostMapping("/register")
+	@PostMapping("/login/register")
 	public RegisterResponse register(@RequestBody String body) throws JsonProcessingException {
 		var user = mapper.readValue(body, User.class);
 
-		return new RegisterResponse(user.getEmail(), UUID.randomUUID());
+		if (userStore.emailExists(user.getEmail()))
+			throw new EmailExistsException();
+
+		var registeredUser = userStore.registerUser(user);
+		if (registeredUser.isPresent()) {
+			return new RegisterResponse(registeredUser.get().getEmail(), registeredUser.get().getId());
+		} else {
+			throw new RuntimeException("Internal error");
+		}
 	}
 
 	@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "Malformed json")
 	@ExceptionHandler(JsonProcessingException.class)
 	public void parseError() {
+	}
+
+	@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "email exists")
+	@ExceptionHandler(EmailExistsException.class)
+	public void emailExistsError() {
 	}
 }

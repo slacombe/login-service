@@ -1,22 +1,19 @@
 package com.demo.loginservice.model;
 
-import java.util.UUID;
-
 public class RegisterResponse {
 	private final String email;
-	private final UUID uuid;
+	private final long id;
 
-	public RegisterResponse(String email, UUID uuid)
-	{
+	public RegisterResponse(String email, long id) {
 		this.email = email;
-		this.uuid = uuid;
+		this.id = id;
 	}
 
 	public String getEmail() {
 		return email;
 	}
 
-	public UUID getUuid() {
-		return uuid;
+	public long getId() {
+		return id;
 	}
 }
