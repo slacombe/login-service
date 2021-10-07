@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +38,10 @@ public class LoginController {
 
 	@RequestMapping("/hello")
 	public String hello() {
-		return "Hello, World!";
+		var authentication = SecurityContextHolder.getContext().getAuthentication();
+		var email = authentication.getName();
+		var user = userStore.getUserByEmail(email);
+		return "Hello " + (user.isPresent() ? user.get().getFirstname() : "World!");
 	}
 
 	@RequestMapping(value = "/login/authenticate", method = RequestMethod.POST)

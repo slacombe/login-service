@@ -37,7 +37,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 			jwt = authorizationHeader.substring("Bearer ".length());
-
 		}
 
 		if (jwt != null) {
